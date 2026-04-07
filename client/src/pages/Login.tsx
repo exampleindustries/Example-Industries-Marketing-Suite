@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LogIn, UserPlus, AlertCircle, Eye, EyeOff } from "lucide-react";
+import logoImg from "@assets/logo.jpg";
 
 export default function LoginPage() {
   const { login, register, error, loading, clearError } = useAuth();
@@ -64,15 +65,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
-        <div className="text-center space-y-2">
-          <div className="mx-auto w-14 h-14">
-            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" aria-label="Full Circle Builders logo">
-              <circle cx="18" cy="18" r="15" stroke="hsl(218,72%,28%)" strokeWidth="3" className="dark:stroke-[hsl(215,80%,60%)]" fill="none" />
-              <path d="M10 22 L10 28 L26 28 L26 22 L18 15 Z" fill="hsl(218,72%,28%)" className="dark:fill-[hsl(215,80%,60%)]" />
-              <path d="M8 23 L18 13 L28 23" stroke="hsl(33,95%,50%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-foreground">Example Industries Marketing Suite</h1>
+        <div className="text-center space-y-3">
+          <img src={logoImg} alt="Example Industries" className="mx-auto w-56" />
+          <h1 className="text-xl font-bold text-foreground">Agency Suite</h1>
           <p className="text-sm text-muted-foreground">Sign in to manage your clients and campaigns</p>
         </div>
 

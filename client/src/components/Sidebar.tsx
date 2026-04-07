@@ -6,6 +6,7 @@ import {
   Sun, Moon, ChevronRight, LogOut, User
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import logoImg from "@assets/logo.jpg";
 
 const nav = [
   { label: "Overview", href: "/", icon: LayoutDashboard },
@@ -30,15 +31,8 @@ export default function Sidebar() {
     <aside className="sidebar-scroll h-full border-r border-border bg-card flex flex-col">
       {/* Logo */}
       <div className="p-5 border-b border-border flex items-center gap-3">
-        <div className="w-9 h-9 flex-shrink-0">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" aria-label="Full Circle Builders logo">
-            <circle cx="18" cy="18" r="15" stroke="hsl(218,72%,28%)" strokeWidth="3" className="dark:stroke-[hsl(215,80%,60%)]" fill="none" />
-            <path d="M10 22 L10 28 L26 28 L26 22 L18 15 Z" fill="hsl(218,72%,28%)" className="dark:fill-[hsl(215,80%,60%)]" />
-            <path d="M8 23 L18 13 L28 23" stroke="hsl(33,95%,50%)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          </svg>
-        </div>
+        <img src={logoImg} alt="Example Industries" className="h-9 flex-shrink-0" />
         <div>
-          <p className="text-sm font-bold text-foreground leading-tight">Full Circle</p>
           <p className="text-xs text-muted-foreground leading-tight">Agency Suite</p>
         </div>
       </div>

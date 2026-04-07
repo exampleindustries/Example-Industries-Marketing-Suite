@@ -103,7 +103,7 @@ export default function OverviewPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-foreground">Agency Overview</h1>
-        <p className="text-sm text-muted-foreground">Full Circle Builders · Temecula, CA</p>
+        <p className="text-sm text-muted-foreground">Example Industries · Temecula, CA</p>
       </div>
 
       {/* KPI Grid */}

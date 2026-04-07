@@ -56,7 +56,7 @@ function PostForm({ clients, onSubmit, loading, initial }: {
     setGenerating(true);
     try {
       const res = await apiRequest("POST", "/api/generate-caption", {
-        clientName: selectedClient?.businessName || "Full Circle Builders",
+        clientName: selectedClient?.businessName || "Example Industries",
         location: selectedClient?.location || "Temecula, CA",
         postType: watch("postType") || "general",
         keywords: selectedClient?.industry || "",
