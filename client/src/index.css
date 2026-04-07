@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── Full Circle Builders — Construction / Professional ── */
+  /* Primary: Deep navy blue (authority, trust)              */
+  /* Accent: Warm amber/orange (construction, SoCal energy)  */
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 218 72% 28%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 93%;
+    --secondary-foreground: 220 25% 20%;
+
+    --muted: 220 14% 93%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 33 95% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 218 72% 28%;
+
+    --radius: 0.5rem;
+
+    /* Chart colors */
+    --chart-1: 218 72% 28%;
+    --chart-2: 33 95% 50%;
+    --chart-3: 160 60% 35%;
+    --chart-4: 0 72% 51%;
+    --chart-5: 270 60% 50%;
+
+    /* Custom semantic tokens */
+    --color-google: 4 90% 58%;
+    --color-meta: 220 89% 53%;
+    --color-instagram: 330 80% 52%;
+    --color-success: 143 64% 35%;
+    --color-warning: 33 95% 50%;
+  }
+
+  .dark {
+    --background: 220 25% 8%;
+    --foreground: 220 15% 90%;
+
+    --card: 220 22% 11%;
+    --card-foreground: 220 15% 90%;
+
+    --popover: 220 22% 11%;
+    --popover-foreground: 220 15% 90%;
+
+    --primary: 215 80% 60%;
+    --primary-foreground: 220 25% 8%;
+
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 220 15% 80%;
+
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 10% 56%;
+
+    --accent: 33 90% 56%;
+    --accent-foreground: 220 25% 8%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 18% 20%;
+    --input: 220 18% 20%;
+    --ring: 215 80% 60%;
+
+    --chart-1: 215 80% 60%;
+    --chart-2: 33 90% 56%;
+    --chart-3: 160 55% 50%;
+    --chart-4: 0 65% 55%;
+    --chart-5: 270 60% 65%;
+
+    --color-google: 4 80% 62%;
+    --color-meta: 220 80% 62%;
+    --color-instagram: 330 70% 62%;
+    --color-success: 143 55% 50%;
+    --color-warning: 33 90% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Tabular numbers for all data values */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+}
+
+@layer utilities {
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    grid-template-rows: 1fr;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .main-scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar-scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Animated number counter */
+  .kpi-value {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Platform badge colors */
+  .badge-google { background: hsl(var(--color-google) / 0.15); color: hsl(var(--color-google)); }
+  .badge-meta { background: hsl(var(--color-meta) / 0.15); color: hsl(var(--color-meta)); }
+  .badge-instagram { background: hsl(var(--color-instagram) / 0.15); color: hsl(var(--color-instagram)); }
+
+  .badge-success { background: hsl(var(--color-success) / 0.15); color: hsl(var(--color-success)); }
+  .badge-warning { background: hsl(var(--color-warning) / 0.15); color: hsl(var(--color-warning)); }
+  .badge-destructive { background: hsl(var(--destructive) / 0.15); color: hsl(var(--destructive)); }
+}
