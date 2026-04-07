@@ -3,7 +3,7 @@ import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import * as schema from "@shared/schema";
 
-const sqlite = new Database("./data.db");
+const sqlite = new Database("/app/data/data.db");
 export const db = drizzle(sqlite, { schema });
 
 // Create tables if they don't exist
