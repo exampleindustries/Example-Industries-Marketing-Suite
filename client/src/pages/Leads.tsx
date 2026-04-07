@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Target, Mail, Phone, ArrowRight, Trash2, DollarSign } from "lucide-react";
+import { Plus, Target, Mail, Phone, ArrowRight, Trash2, DollarSign, Edit2 } from "lucide-react";
 import type { Lead, Client, InsertLead } from "@shared/schema";
 import { useForm, Controller } from "react-hook-form";
 
@@ -30,13 +30,14 @@ const sourceStyles: Record<string, string> = {
   referral: "bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",
 };
 
-function LeadForm({ clients, onSubmit, loading }: {
+function LeadForm({ clients, onSubmit, loading, initial }: {
   clients: Client[];
   onSubmit: (data: InsertLead) => void;
   loading: boolean;
+  initial?: Partial<InsertLead>;
 }) {
   const { register, handleSubmit, setValue, control, formState: { errors } } = useForm<InsertLead>({
-    defaultValues: { status: "new", source: "google" },
+    defaultValues: initial || { status: "new", source: "google" },
   });
 
   return (
@@ -104,7 +105,7 @@ function LeadForm({ clients, onSubmit, loading }: {
         <Textarea data-testid="input-lead-notes" placeholder="Any notes about this lead…" rows={2} {...register("notes")} />
       </div>
       <Button data-testid="button-submit-lead" type="submit" className="w-full" disabled={loading}>
-        {loading ? "Saving…" : "Add Lead"}
+        {loading ? "Saving…" : initial ? "Update Lead" : "Add Lead"}
       </Button>
     </form>
   );
@@ -113,6 +114,7 @@ function LeadForm({ clients, onSubmit, loading }: {
 export default function LeadsPage() {
   const [open, setOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [editLead, setEditLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
   const { data: leads = [], isLoading } = useQuery<Lead[]>({
@@ -131,6 +133,17 @@ export default function LeadsPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
       setOpen(false);
       toast({ title: "Lead added" });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<InsertLead> }) =>
+      apiRequest("PATCH", `/api/leads/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
+      setEditLead(null);
+      toast({ title: "Lead updated" });
     },
   });
 
@@ -281,6 +294,14 @@ export default function LeadsPage() {
                         </Button>
                       )}
                       <Button
+                        data-testid={`button-edit-lead-${lead.id}`}
+                        variant="outline" size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={() => setEditLead(lead)}
+                      >
+                        <Edit2 size={11} /> Edit
+                      </Button>
+                      <Button
                         data-testid={`button-delete-lead-${lead.id}`}
                         variant="ghost" size="sm"
                         className="h-7 px-2 text-destructive hover:bg-destructive/10"
@@ -296,6 +317,20 @@ export default function LeadsPage() {
           })}
         </div>
       )}
+
+      <Dialog open={!!editLead} onOpenChange={o => !o && setEditLead(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Edit Lead</DialogTitle></DialogHeader>
+          {editLead && (
+            <LeadForm
+              clients={clients}
+              initial={editLead}
+              onSubmit={data => updateMutation.mutate({ id: editLead.id, data })}
+              loading={updateMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, BarChart3, Trash2, TrendingUp, Eye, MousePointerClick, DollarSign, Zap } from "lucide-react";
+import { Plus, BarChart3, Trash2, TrendingUp, Eye, MousePointerClick, DollarSign, Zap, Edit2 } from "lucide-react";
 import type { AdCampaign, Client, InsertAdCampaign } from "@shared/schema";
 import { useForm, Controller } from "react-hook-form";
 
@@ -19,13 +19,14 @@ const platformStyles: Record<string, { label: string; cls: string }> = {
   meta: { label: "Meta Ads", cls: "badge-meta" },
 };
 
-function CampaignForm({ clients, onSubmit, loading }: {
+function CampaignForm({ clients, onSubmit, loading, initial }: {
   clients: Client[];
   onSubmit: (data: InsertAdCampaign) => void;
   loading: boolean;
+  initial?: Partial<InsertAdCampaign>;
 }) {
   const { register, handleSubmit, setValue, control, formState: { errors } } = useForm<InsertAdCampaign>({
-    defaultValues: { platform: "google", status: "active", budget: 0, spent: 0, clicks: 0, impressions: 0, conversions: 0, ctr: 0, cpc: 0 },
+    defaultValues: initial || { platform: "google", status: "active", budget: 0, spent: 0, clicks: 0, impressions: 0, conversions: 0, ctr: 0, cpc: 0 },
   });
 
   return (
@@ -126,6 +127,7 @@ function CampaignForm({ clients, onSubmit, loading }: {
 export default function AdsPage() {
   const [open, setOpen] = useState(false);
   const [platformFilter, setPlatformFilter] = useState("all");
+  const [editCampaign, setEditCampaign] = useState<AdCampaign | null>(null);
   const { toast } = useToast();
 
   const { data: campaigns = [], isLoading } = useQuery<AdCampaign[]>({
@@ -144,6 +146,17 @@ export default function AdsPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
       setOpen(false);
       toast({ title: "Campaign added" });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<InsertAdCampaign> }) =>
+      apiRequest("PATCH", `/api/campaigns/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/campaigns"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
+      setEditCampaign(null);
+      toast({ title: "Campaign updated" });
     },
   });
 
@@ -257,14 +270,24 @@ export default function AdsPage() {
                       </div>
                       <p className="text-xs text-muted-foreground">{getClientName(c.clientId)}</p>
                     </div>
-                    <Button
-                      data-testid={`button-delete-campaign-${c.id}`}
-                      variant="ghost" size="sm"
-                      className="h-7 px-2 text-destructive hover:bg-destructive/10"
-                      onClick={() => deleteMutation.mutate(c.id)}
-                    >
-                      <Trash2 size={11} />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        data-testid={`button-edit-campaign-${c.id}`}
+                        variant="outline" size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={() => setEditCampaign(c)}
+                      >
+                        <Edit2 size={11} /> Edit
+                      </Button>
+                      <Button
+                        data-testid={`button-delete-campaign-${c.id}`}
+                        variant="ghost" size="sm"
+                        className="h-7 px-2 text-destructive hover:bg-destructive/10"
+                        onClick={() => deleteMutation.mutate(c.id)}
+                      >
+                        <Trash2 size={11} />
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Spend bar */}
@@ -302,6 +325,20 @@ export default function AdsPage() {
           })}
         </div>
       )}
+
+      <Dialog open={!!editCampaign} onOpenChange={o => !o && setEditCampaign(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Edit Campaign</DialogTitle></DialogHeader>
+          {editCampaign && (
+            <CampaignForm
+              clients={clients}
+              initial={editCampaign}
+              onSubmit={data => updateMutation.mutate({ id: editCampaign.id, data })}
+              loading={updateMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

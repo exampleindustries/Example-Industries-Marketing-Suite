@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Sparkles, CalendarCheck, Instagram, Facebook, Clock, Trash2, CheckCircle, Hash } from "lucide-react";
+import { Plus, Sparkles, CalendarCheck, Instagram, Facebook, Clock, Trash2, CheckCircle, Hash, Edit2 } from "lucide-react";
 import type { SocialPost, Client, InsertSocialPost } from "@shared/schema";
 import { useForm, Controller } from "react-hook-form";
 
@@ -27,16 +27,26 @@ const statusColors: Record<string, string> = {
   posted: "badge-success",
 };
 
-function PostForm({ clients, onSubmit, loading }: {
+function PostForm({ clients, onSubmit, loading, initial }: {
   clients: Client[];
   onSubmit: (data: InsertSocialPost) => void;
   loading: boolean;
+  initial?: Partial<InsertSocialPost>;
 }) {
   const { register, handleSubmit, setValue, watch, control, formState: { errors } } = useForm<InsertSocialPost>({
-    defaultValues: { platform: "both", status: "draft", postType: "general" },
+    defaultValues: initial || { platform: "both", status: "draft", postType: "general" },
   });
   const [generating, setGenerating] = useState(false);
   const [hashtags, setHashtags] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (initial?.hashtags) {
+      try {
+        const parsed = JSON.parse(initial.hashtags);
+        if (Array.isArray(parsed)) setHashtags(parsed);
+      } catch {}
+    }
+  }, []);
   const { toast } = useToast();
 
   const selectedClientId = watch("clientId");
@@ -173,6 +183,7 @@ function PostForm({ clients, onSubmit, loading }: {
 export default function SocialPage() {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [editPost, setEditPost] = useState<SocialPost | null>(null);
   const { toast } = useToast();
 
   const { data: posts = [], isLoading } = useQuery<SocialPost[]>({
@@ -191,6 +202,17 @@ export default function SocialPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
       setOpen(false);
       toast({ title: "Post saved" });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<InsertSocialPost> }) =>
+      apiRequest("PATCH", `/api/posts/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/summary"] });
+      setEditPost(null);
+      toast({ title: "Post updated" });
     },
   });
 
@@ -311,6 +333,14 @@ export default function SocialPage() {
                         </Button>
                       )}
                       <Button
+                        data-testid={`button-edit-post-${post.id}`}
+                        variant="outline" size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={() => setEditPost(post)}
+                      >
+                        <Edit2 size={11} /> Edit
+                      </Button>
+                      <Button
                         data-testid={`button-delete-post-${post.id}`}
                         variant="ghost" size="sm"
                         className="h-7 px-2 text-destructive hover:bg-destructive/10"
@@ -326,6 +356,20 @@ export default function SocialPage() {
           })}
         </div>
       )}
+
+      <Dialog open={!!editPost} onOpenChange={o => !o && setEditPost(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Edit Post</DialogTitle></DialogHeader>
+          {editPost && (
+            <PostForm
+              clients={clients}
+              initial={editPost}
+              onSubmit={data => updateMutation.mutate({ id: editPost.id, data })}
+              loading={updateMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
