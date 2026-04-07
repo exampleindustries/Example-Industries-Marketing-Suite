@@ -2,8 +2,12 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import * as schema from "@shared/schema";
+import { mkdirSync } from "fs";
+import { dirname } from "path";
 
-const sqlite = new Database("/app/data/data.db");
+const dbPath = process.env.DATABASE_PATH || "./data.db";
+mkdirSync(dirname(dbPath), { recursive: true });
+const sqlite = new Database(dbPath);
 export const db = drizzle(sqlite, { schema });
 
 // Create tables if they don't exist
